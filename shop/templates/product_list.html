@@ -1,15 +1,37 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
 <h2>Products</h2>
 
+<h3>Categories:</h3>
 <ul>
-    {% for p in products %}
+    <li><a href="{% url 'product_list' %}">All</a></li>
+    {% for cat in categories %}
         <li>
-            <a href="{% url 'product_detail' p.slug %}">{{ p.name }}</a>
-            – {{ p.price }} ₽
+            <a href="{% url 'product_list_by_category' category_slug=cat.slug %}">
+                {{ cat.name }}
+            </a>
         </li>
     {% endfor %}
 </ul>
+
+<hr>
+
+{% block product_cards %}
+<div>
+    {% for product in products %}
+        <p>
+            <a href="{% url 'product_detail' slug=product.slug %}">
+                {{ product.name }}
+            </a>
+            – {{ product.price }} ₽
+        </p>
+    {% empty %}
+        <p>No products yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+<p>Page {{ products.number }} of {{ products.paginator.num_pages }}</p>
 
 {% endblock %}
