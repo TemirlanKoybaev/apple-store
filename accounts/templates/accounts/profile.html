@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Профиль - Apple Store</title>
+</head>
+<body>
+    <h2>Ваш профиль</h2>
+    <p>Имя: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Выйти</button>
+    </form>
+    <p><a href="/">На главную</a></p>
+</body>
+</html>
