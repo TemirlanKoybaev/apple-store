@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>{{ product.name }}</h2>
+  <h2>{{ product.name }}</h2>
 
-{% block product_details %}
-<p>{{ product.price }} ₽</p>
-<p>{{ product.description }}</p>
-<img src="{{ product.image_url }}" alt="{{ product.name }}" width="300">
-{% endblock %}
+  <p>{{ product.price }} ₽</p>
+  <p>{{ product.description }}</p>
 
-<a href="/">Back to products</a>
+  <img src="{{ product.image_url }}" alt="{{ product.name }}" width="300">
+
+  <a href="{% url 'cart_add' product.id %}" class="btn btn-dark">
+    Добавить в корзину
+  </a>
+
+  <a href="{% url 'product_list' %}">Back to products</a>
 {% endblock %}
