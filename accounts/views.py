@@ -1,21 +1,41 @@
-from django.shortcuts import render
+# accounts/views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
-from .forms import RegisterForm
 
-class RegisterView(CreateView):
-    form_class = RegisterForm
-    template_name = 'accounts/register.html'
-    success_url = reverse_lazy('login')
+# Регистрация
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'accounts/register.html', {'form': form})
 
-class CustomLoginView(LoginView):
-    template_name = 'accounts/login.html'
+# Вход
+def user_login(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('product_list')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'accounts/login.html', {'form': form})
 
-class CustomLogoutView(LogoutView):
-    next_page = '/'
+# Выход
+def user_logout(request):
+    logout(request)
+    return redirect('product_list')
 
+# Профиль
 @login_required
-def profile_view(request):
-    return render(request, 'accounts/profile.html')
+def profile(request):
+    return render(request, 'accounts/profile.html', {'user': request.user})

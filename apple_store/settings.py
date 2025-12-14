@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'shop',
     'accounts',
+    'cart',
+
 ]
 
 MIDDLEWARE = [
@@ -56,13 +58,14 @@ ROOT_URLCONF = 'apple_store.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'cart.context_processors.cart', 
             ],
         },
     },
@@ -120,3 +123,4 @@ LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 STATIC_URL = 'static/'
+CART_SESSION_ID = 'cart'

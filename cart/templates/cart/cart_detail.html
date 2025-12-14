@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Корзина | Apple Store{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">🛒 Ваша корзина</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    {% if cart|length > 0 %}
+        <div class="cart-items">
+            {% for item in cart %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            {% if item.image_url %}
+                                <img src="{{ item.image_url }}" alt="{{ item.name }}" class="img-fluid rounded">
+                            {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 100px; width: 100px;">
+                                    <i class="bi bi-image text-muted"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="mb-1">{{ item.name }}</h5>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-group">
+                                <input type="number" value="{{ item.quantity }}" min="1" class="form-control" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <h5 class="mb-0">{{ item.price }} ₽ × {{ item.quantity }}</h5>
+                            <p class="text-muted mb-0">Итого: {{ item.price|floatformat:2 }} ₽</p>
+                        </div>
+                        <div class="col-md-2">
+                            <form action="{% url 'cart_remove' forloop.counter %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4 class="mb-0">Итого:</h4>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <h3 class="text-primary">{{ total|floatformat:2 }} ₽</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-end">
+            <a href="{% url 'product_list' %}" class="btn btn-outline-dark me-3">← Продолжить покупки</a>
+            <button class="btn btn-success btn-lg">Оформить заказ</button>
+        </div>
+        
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <h5 class="card-title">Корзина пуста</h5>
+                <p class="text-muted">Добавьте товары из каталога, чтобы увидеть их здесь.</p>
+                <a href="{% url 'product_list' %}" class="btn btn-primary">
+                    ← Вернуться к покупкам
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
