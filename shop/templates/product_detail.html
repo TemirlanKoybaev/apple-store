@@ -1,16 +1,166 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>{{ product.name }}</h2>
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'product_list' %}" class="text-decoration-none">Каталог</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+        </ol>
+    </nav>
 
-  <p>{{ product.price }} ₽</p>
-  <p>{{ product.description }}</p>
+    <div class="mb-3">
+        <span class="badge bg-secondary">{{ product.category.name }}</span>
+    </div>
+    
+    <h1 class="display-5 fw-bold mb-4">{{ product.name }}</h1>
 
-  <img src="{{ product.image_url }}" alt="{{ product.name }}" width="300">
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="product-image-container bg-light rounded-4 p-4 d-flex align-items-center justify-content-center" 
+                 style="min-height: 400px;">
+                {% if product.image_url %}
+                    <img src="{{ product.image_url }}" 
+                         alt="{{ product.name }}" 
+                         class="img-fluid product-main-image"
+                         style="max-height: 350px; object-fit: contain;">
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="bi bi-image" style="font-size: 4rem;"></i>
+                        <p class="mt-2">Изображение отсутствует</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
 
-  <a href="{% url 'cart_add' product.id %}" class="btn btn-dark">
-    Добавить в корзину
-  </a>
+        <div class="col-lg-6 mb-4">
+            <div class="mb-4">
+                <span class="display-4 fw-bold text-dark">{{ product.price }} ₽</span>
+            </div>
 
-  <a href="{% url 'product_list' %}">Back to products</a>
+            <div class="mb-4">
+                {% if product.available %}
+                    <p class="text-success">
+                        <i class="bi bi-check-circle-fill"></i> В наличии
+                    </p>
+                {% else %}
+                    <p class="text-danger">
+                        <i class="bi bi-x-circle-fill"></i> Нет в наличии
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="mb-5">
+                {% if product.available %}
+                    <a href="{% url 'cart_add' product.id %}" 
+                       class="btn btn-dark btn-lg px-5 py-3 rounded-pill w-100">
+                        <i class="bi bi-cart-plus me-2"></i>Добавить в корзину
+                    </a>
+                {% else %}
+                    <button class="btn btn-secondary btn-lg px-5 py-3 rounded-pill w-100" disabled>
+                        <i class="bi bi-cart-x me-2"></i>Нет в наличии
+                    </button>
+                {% endif %}
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="bi bi-info-circle me-2"></i>Детали товара
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-tag me-2 text-muted"></i>
+                            <strong>Категория:</strong> {{ product.category.name }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-upc-scan me-2 text-muted"></i>
+                            <strong>Артикул:</strong> {{ product.slug|upper }}
+                        </li>
+                        <li>
+                            <i class="bi bi-box-seam me-2 text-muted"></i>
+                            <strong>Статус:</strong> 
+                            {% if product.available %}
+                                <span class="text-success">Доступен для заказа</span>
+                            {% else %}
+                                <span class="text-danger">Недоступен</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 bg-light mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Описание товара</h5>
+                    <p class="card-text">{{ product.description|linebreaksbr }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'product_list' %}" 
+           class="btn btn-outline-dark rounded-pill px-4">
+            <i class="bi bi-arrow-left me-2"></i>Назад к каталогу
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-image-container {
+        transition: all 0.3s ease;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .product-image-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+    
+    .product-main-image {
+        transition: transform 0.3s ease;
+    }
+    
+    .product-main-image:hover {
+        transform: scale(1.05);
+    }
+    
+    .btn-dark {
+        background: linear-gradient(135deg, #1d1d1f 0%, #424245 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-dark:hover {
+        background: linear-gradient(135deg, #424245 0%, #1d1d1f 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .rounded-pill {
+        border-radius: 50rem !important;
+    }
+    
+    .card {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    @media (max-width: 768px) {
+        .btn-lg {
+            padding: 0.75rem 1.5rem !important;
+            font-size: 1rem !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
 {% endblock %}
