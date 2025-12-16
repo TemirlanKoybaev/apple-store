@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse
-
+from django.shortcuts import render
 
 from .models import Product, Category
 
@@ -54,3 +54,8 @@ def product_detail(request, slug):
 
 def cart_add_stub(request, product_id):
     return HttpResponse(f"Cart stub: add product_id={product_id}")
+
+
+def contact_page(request):
+    return render(request, "contact.html")
+
