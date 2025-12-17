@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои заказы | Apple Store{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">📋 Мои заказы</h1>
+
+    {% if orders %}
+        <div class="row">
+            {% for order in orders %}
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">Заказ #{{ order.id }}</h5>
+                            <small class="text-muted">{{ order.created|date:"d.m.Y H:i" }}</small>
+                        </div>
+                        <div>
+                            <span class="badge {% if order.paid %}bg-success{% else %}bg-warning{% endif %} me-2">
+                                {% if order.paid %}Оплачен{% else %}Ожидает оплаты{% endif %}
+                            </span>
+                            <span class="badge bg-primary">{{ order.get_total_cost|floatformat:2 }} ₽</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h6>Товары:</h6>
+                                <div class="row row-cols-1 row-cols-md-2 g-3">
+                                    {% for item in order.items.all|slice:":4" %}
+                                    <div class="col">
+                                        <div class="d-flex align-items-center">
+                                            {% if item.product.image_url %}
+                                                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" 
+                                                     class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <small class="d-block">{{ item.product.name|truncatechars:30 }}</small>
+                                                <small class="text-muted">{{ item.quantity }} × {{ item.price }} ₽</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                    {% if order.items.count > 4 %}
+                                    <div class="col">
+                                        <div class="d-flex align-items-center text-muted">
+                                            <i class="bi bi-three-dots me-2"></i>
+                                            <small>и еще {{ order.items.count|add:"-4" }} товар(ов)</small>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-grid gap-2 mt-3 mt-md-0">
+                                    <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-dark btn-sm">
+                                        <i class="bi bi-eye me-1"></i>Подробнее
+                                    </a>
+                                    {% if not order.paid %}
+                                        <button class="btn btn-success btn-sm">
+                                            <i class="bi bi-credit-card me-1"></i>Оплатить
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="display-1 text-muted mb-4">
+                    <i class="bi bi-cart"></i>
+                </div>
+                <h4 class="card-title">У вас еще нет заказов</h4>
+                <p class="card-text text-muted mb-4">
+                    Сделайте свой первый заказ и он появится здесь.
+                </p>
+                <a href="{% url 'product_list' %}" class="btn btn-primary">
+                    <i class="bi bi-bag me-2"></i>Перейти к покупкам
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
