@@ -1,19 +1,116 @@
 {% extends 'base.html' %}
 
+{% block title %}Вход | Apple Store{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h2>Вход</h2>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Войти</button>
-            </form>
-            <p class="mt-3">
-                Нет аккаунта? <a href="{% url 'register' %}">Зарегистрируйтесь</a>
-            </p>
+        <div class="col-md-8 col-lg-5">
+            <div class="card border-0 shadow-sm p-4 p-md-5">
+                <div class="text-center mb-5">
+                    <div class="mb-4">
+                        <i class="bi bi-person-circle" style="font-size: 3rem; color: #1d1d1f;"></i>
+                    </div>
+                    <h1 class="fw-bold mb-2">Вход в аккаунт</h1>
+                    <p class="text-muted">Войдите в ваш Apple Store аккаунт</p>
+                </div>
+                
+                <form method="post" class="auth-form">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger mb-4">
+                        {% for error in form.non_field_errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% for field in form %}
+                    <div class="mb-4">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-bold">
+                            {{ field.label }}
+                        </label>
+                        
+                        <input type="{{ field.field.widget.input_type }}" 
+                               name="{{ field.name }}"
+                               id="{{ field.id_for_label }}"
+                               class="form-control form-control-lg {% if field.errors %}is-invalid{% endif %}"
+                               value="{{ field.value|default:'' }}"
+                               placeholder=""
+                               required>
+                        
+                        {% if field.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in field.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn btn-dark btn-lg w-100 py-3 mt-3">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                    </button>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted mb-0">
+                            Нет аккаунта?
+                            <a href="{% url 'register' %}" class="text-decoration-none fw-bold ms-1">
+                                Зарегистрироваться
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 20px;
+    }
+    
+    .form-control-lg {
+        border-radius: 12px;
+        border: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .form-control-lg:focus {
+        border-color: #1d1d1f;
+        box-shadow: 0 0 0 0.2rem rgba(29, 29, 31, 0.1);
+    }
+    
+    .btn-dark {
+        background: linear-gradient(135deg, #1d1d1f 0%, #424245 100%);
+        border: none;
+        border-radius: 12px;
+    }
+    
+    .btn-dark:hover {
+        background: linear-gradient(135deg, #424245 0%, #1d1d1f 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    @media (max-width: 768px) {
+        .card {
+            padding: 2rem 1.5rem !important;
+        }
+        
+        .btn-lg {
+            padding: 0.75rem 1rem !important;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+    }
+</style>
 {% endblock %}
