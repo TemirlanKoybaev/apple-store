@@ -4,48 +4,89 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="mb-4">🛒 Ваша корзина</h1>
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h1 class="display-5 fw-bold mb-0">
+            <i class="bi bi-cart3 me-2"></i>Ваша корзина
+        </h1>
+        <div class="text-muted">
+            {% if cart|length > 0 %}
+                {{ cart|length }} товар{{ cart|length|pluralize:"а,ов" }}
+            {% endif %}
+        </div>
+    </div>
     
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-light border mb-3 alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <div class="me-2">
+                    {% if 'добавлен' in message|lower %}
+                        <i class="bi bi-cart-plus text-success"></i>
+                    {% elif 'удален' in message|lower %}
+                        <i class="bi bi-cart-dash text-danger"></i>
+                    {% else %}
+                        <i class="bi bi-info-circle text-primary"></i>
+                    {% endif %}
+                </div>
+                <span>{{ message }}</span>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
             </div>
+        </div>
         {% endfor %}
     {% endif %}
     
     {% if cart|length > 0 %}
-        <div class="cart-items">
+        <div class="cart-items mb-5">
             {% for item in cart %}
-            <div class="card mb-3">
-                <div class="card-body">
+            <div class="card border-0 shadow-sm mb-3 apple-card">
+                <div class="card-body p-4">
                     <div class="row align-items-center">
-                        <div class="col-md-2">
-                            {% if item.image_url %}
-                                <img src="{{ item.image_url }}" alt="{{ item.name }}" class="img-fluid rounded">
-                            {% else %}
-                                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 100px; width: 100px;">
-                                    <i class="bi bi-image text-muted"></i>
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-4">
-                            <h5 class="mb-1">{{ item.name }}</h5>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="input-group">
-                                <input type="number" value="{{ item.quantity }}" min="1" class="form-control" disabled>
+                        <div class="col-lg-2 col-md-3 mb-3 mb-md-0">
+                            <div class="cart-image-container bg-light rounded-3 p-3 d-flex align-items-center justify-content-center">
+                                {% if item.product.image_url %}
+                                    <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" 
+                                         class="img-fluid" style="max-height: 80px; object-fit: contain;">
+                                {% else %}
+                                    <div class="text-center text-muted">
+                                        <i class="bi bi-image" style="font-size: 2rem;"></i>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <h5 class="mb-0">{{ item.price }} ₽ × {{ item.quantity }}</h5>
-                            <p class="text-muted mb-0">Итого: {{ item.price|floatformat:2 }} ₽</p>
+                        
+                        <div class="col-lg-5 col-md-4">
+                            <h5 class="fw-bold mb-1">{{ item.product.name }}</h5>
+                            <div class="text-muted small">
+                                <span class="badge bg-secondary">{{ item.product.category.name|default:"Apple" }}</span>
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <form action="{% url 'cart_remove' forloop.counter %}" method="post" style="display: inline;">
+                        
+                        <div class="col-lg-2 col-md-3">
+                            <div class="d-flex align-items-center">
+                                <span class="me-2 text-muted">Кол-во:</span>
+                                <span class="quantity-badge bg-dark text-white px-3 py-1 rounded-pill">
+                                    {{ item.quantity }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-2 col-md-2 text-end">
+                            <div class="mb-1">
+                                <span class="h5 fw-bold">{{ item.price|floatformat:2 }} ₽</span>
+                            </div>
+                            <div class="text-muted small">
+                                × {{ item.quantity }} = <strong>{{ item.total_price|floatformat:2 }} ₽</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-1 col-md-2 text-end">
+                            <form action="{% url 'cart_remove' item.product.id %}" method="post" 
+                                  class="d-inline">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                <button type="submit" class="btn btn-link text-danger p-0" 
+                                        title="Удалить из корзины">
+                                    <i class="bi bi-trash" style="font-size: 1.2rem;"></i>
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -54,36 +95,93 @@
             {% endfor %}
         </div>
         
-        <div class="card mt-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-8">
-                        <h4 class="mb-0">Итого:</h4>
+        <div class="card border-0 bg-light mb-4">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h4 class="mb-0 fw-bold">Общая сумма:</h4>
+                        <p class="text-muted mb-0 mt-2">Включая все товары в корзине</p>
                     </div>
-                    <div class="col-md-4 text-end">
-                        <h3 class="text-primary">{{ total|floatformat:2 }} ₽</h3>
+                    <div class="col-md-6 text-md-end">
+                        <div class="display-4 fw-bold text-dark">{{ total|floatformat:2 }} ₽</div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="mt-4 text-end">
-            <a href="{% url 'product_list' %}" class="btn btn-outline-dark me-3">← Продолжить покупки</a>
-            <a href="{% url 'orders:order_create' %}" class="btn btn-success btn-lg py-3 px-4" style="font-size: 1.2rem;">
-                <i class="bi bi-arrow-right-circle me-2"></i>Перейти к оформлению
+        <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mt-5">
+            <a href="{% url 'product_list' %}" 
+               class="btn btn-outline-dark btn-lg rounded-pill px-5 py-3 order-2 order-md-1">
+                <i class="bi bi-arrow-left me-2"></i>Продолжить покупки
+            </a>
+            
+            <a href="{% url 'orders:order_create' %}" 
+               class="btn btn-dark btn-lg rounded-pill px-5 py-3 order-1 order-md-2">
+                <i class="bi bi-bag-check me-2"></i>Оформить заказ
             </a>
         </div>
         
     {% else %}
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <h5 class="card-title">Корзина пуста</h5>
-                <p class="text-muted">Добавьте товары из каталога, чтобы увидеть их здесь.</p>
-                <a href="{% url 'product_list' %}" class="btn btn-primary">
-                    ← Вернуться к покупкам
+        <div class="card border-0 bg-light text-center py-5">
+            <div class="card-body">
+                <div class="empty-cart-icon mb-4">
+                    <i class="bi bi-cart-x" style="font-size: 5rem; color: #d2d2d7;"></i>
+                </div>
+                <h3 class="fw-bold mb-3">Ваша корзина пуста</h3>
+                <p class="text-muted mb-4" style="max-width: 500px; margin: 0 auto;">
+                    Исследуйте нашу коллекцию продуктов Apple и добавьте то, что вам понравится
+                </p>
+                <a href="{% url 'product_list' %}" 
+                   class="btn btn-dark btn-lg rounded-pill px-5 py-3">
+                    <i class="bi bi-bag me-2"></i>Перейти в каталог
                 </a>
             </div>
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .apple-card {
+        transition: all 0.3s ease;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    .apple-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+    
+    .cart-image-container {
+        height: 120px;
+        transition: all 0.3s ease;
+    }
+    
+    .cart-image-container:hover {
+        transform: scale(1.05);
+    }
+    
+    .quantity-badge {
+        min-width: 50px;
+        text-align: center;
+        font-weight: 600;
+    }
+    
+    .empty-cart-icon {
+        opacity: 0.7;
+    }
+    
+    @media (max-width: 768px) {
+        .display-4 {
+            font-size: 2.5rem;
+        }
+        
+        .btn-lg {
+            padding: 0.75rem 1.5rem !important;
+            font-size: 1rem !important;
+        }
+    }
+</style>
 {% endblock %}
