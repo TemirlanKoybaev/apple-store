@@ -6,6 +6,7 @@
   <div class="container py-4">
     <div class="row g-4 align-items-start">
 
+      <!-- Sidebar -->
       <div class="col-12 col-md-4 col-lg-3">
         <div class="card border-0 shadow-sm">
           <div class="card-body">
@@ -36,6 +37,7 @@
         </div>
       </div>
 
+      <!-- Main content -->
       <div class="col-12 col-md-8 col-lg-9">
         <h1 class="h3 mb-4">
           {% if selected_category %}
@@ -45,6 +47,7 @@
           {% endif %}
         </h1>
 
+        <!-- Search + sort -->
         <form method="get" class="row g-2 align-items-center mb-3">
           <div class="col-12 col-md-6">
             <div class="input-group">
@@ -79,6 +82,7 @@
           </div>
         </form>
 
+        <!-- Products -->
         <div class="row g-4">
           {% for product in products %}
             <div class="col-12 col-sm-6 col-lg-4">
@@ -110,7 +114,7 @@
                         <i class="bi bi-cart-plus me-1"></i>В корзину
                       </button>
                     </form>
-                    
+
                     <a
                       href="{% url 'product_detail' product.slug %}"
                       class="btn btn-outline-dark w-100"
@@ -128,6 +132,50 @@
             </div>
           {% endfor %}
         </div>
+
+        <!-- PAGINATION -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation" class="mt-4">
+          <ul class="pagination justify-content-center">
+
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}&q={{ query|urlencode }}&sort={{ sort }}">
+                  Назад
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">Назад</span></li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+              {% else %}
+                <li class="page-item">
+                  <a class="page-link"
+                     href="?page={{ num }}&q={{ query|urlencode }}&sort={{ sort }}">
+                    {{ num }}
+                  </a>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}&q={{ query|urlencode }}&sort={{ sort }}">
+                  Вперёд
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">Вперёд</span></li>
+            {% endif %}
+
+          </ul>
+        </nav>
+        {% endif %}
 
       </div>
     </div>
